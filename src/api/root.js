@@ -31,7 +31,7 @@ class APIRoot {
           if (e.name === 'ValidationError') {
             res.status(400);
             res.json({
-              message: e.message,
+              error: e.message,
             });
             return;
           }
@@ -39,7 +39,7 @@ class APIRoot {
           if (e.name === 'NotFoundError') {
             res.status(404);
             res.json({
-              message: e.message,
+              error: e.message,
             });
             return;
           }
