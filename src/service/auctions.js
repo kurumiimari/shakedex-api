@@ -74,7 +74,7 @@ class AuctionService {
   async validateAuction(auction) {
     const res = jsonSchemaValidate(auction, auctionSchema);
     if (!res.valid) {
-      throw new ValidationError('Invalid auction.');
+      throw new ValidationError('Invalid auction schema.');
     }
 
     const exists = await this.auctionsDb.auctionExists(auction.lockingTxHash, auction.lockingOutputIdx);
