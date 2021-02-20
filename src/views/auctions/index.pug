@@ -32,7 +32,7 @@ block content
                               td= viewHelpers.roundCurrency(viewHelpers.currentBid(auction.bids).price)
                               td
                                   a(href=`/auctions/${auction.id}`) View &raquo;
-                      if auctions.length > 0
+                      if auctions.length === 0
                           tr
                             td(colspan=6)
                                 | No auctions yet. Create one using the&nbsp;
