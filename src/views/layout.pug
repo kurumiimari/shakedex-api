@@ -1,0 +1,21 @@
+html
+    head
+        meta(charset="utf-8")
+        title Shakedex | #{title}
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous")
+        script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous")
+        link(rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous")
+
+    body
+        nav.navbar.navbar-expand-md.navbar-light.bg-light.mb-4
+            .container-fluid
+                a.navbar-brand(href="/") ShakeDex
+                button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation")
+                    span.navbar-toggler-icon
+
+                #navbarSupportedContent.collapse.navbar-collapse
+                    ul.navbar-nav.me-auto.mb-2.mb-md-0
+                        li.nav-item
+                            a.nav-link(href="/") Auctions
+
+        block content

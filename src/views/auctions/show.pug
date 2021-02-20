@@ -1,0 +1,51 @@
+extends ../layout.pug
+
+
+block content
+    .container-fluid
+        .row.mb-4
+            .col.d-flex.align-items-center
+                h1 #{auction.name}/
+                div.ml-auto
+                    a.btn.btn-primary.btn-md(href=`/api/v1/auctions/${auction.id}/download`) Download Presigns
+
+
+        .row.mb-4
+            .col
+                .card-group
+                    .card
+                        .card-body.text-center
+                            p.font-weight-normal Auction Start
+                            p.font-weight-bolder.mb-0= viewHelpers.formatDate(auction.bids[0].lockTime)
+                    .card
+                        .card-body.text-center
+                            p.font-weight-normal Auction End
+                            p.font-weight-bolder.mb-0= viewHelpers.formatDate(auction.bids[auction.bids.length - 1].lockTime)
+                    .card
+                        .card-body.text-center
+                            p.font-weight-normal Current Bid
+                            p.font-weight-bolder.mb-0= viewHelpers.roundCurrency(viewHelpers.currentBid(auction.bids).price)
+        .row
+            .col
+                h2 Bids
+                table.table
+                    thead
+                        tr
+                            th Price
+                            th Status
+                            th Signature
+                            th &nbsp;
+                    tbody
+                      - const now = Date.now()
+                      each bid in auction.bids
+                          tr
+                              td.align-middle= viewHelpers.roundCurrency(bid.price)
+                              td.align-middle
+                                  if bid.lockTime < now
+                                      | Available now
+                                  else
+                                      | Available in #{viewHelpers.fromNow(bid.lockTime)}
+                              td
+                                input.w-100.form-control.form-control-sm(editable=false value=bid.signature)
+                              td.text-right
+                                a(class=`btn btn-primary btn-sm ${bid.lockTime > now ? 'disabled' : ''}` href=`/api/v1/auctions/${auction.id}/download`) Fulfill

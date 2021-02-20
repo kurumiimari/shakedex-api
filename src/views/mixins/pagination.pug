@@ -1,0 +1,93 @@
+mixin pagination(adjacents, numPages, display, currentPage, base)
+  - adjacents = (adjacents || 1) * 1;
+  - numPages = (numPages || 10) * 1;
+  - currentPage = (currentPage || 1) * 1;
+  - base = base || '#';
+  - display = (display || 7) * 1;
+
+      ul.pagination
+        if numPages < display + adjacents * 2
+          - var p = 1;
+          while p <= numPages
+              if currentPage == p
+                  li.active
+                      a(href=base + p)
+                          | #{p}
+              else
+                  li.page
+                      a(href=base + p)
+                          | #{p}
+              - p++;
+        else if numPages >= 7 + adjacents * 2
+            if currentPage < 1 + adjacents * 3
+              - var p = 1;
+              while p < display - 3 + adjacents * 2
+                  if currentPage == p
+                      li.active
+                          a(href=base + p)
+                              | #{p}
+                  else
+                      li.page
+                          a(href=base + p)
+                              | #{p}
+                  - p++;
+              li.disabled
+                  a(href="#")
+                      | &hellip;
+              li.page
+                  a(href=base + (numPages - 1))
+                      | #{numPages - 1}
+              li.page
+                  a(href=base + numPages)
+                      | #{numPages}
+            else if numPages - adjacents * 2 > currentPage && currentPage > adjacents * 2
+                li.page
+                    a(href=base + 1)
+                        | 1
+                li.page
+                    a(href=base + 2)
+                        | 2
+                li.disabled
+                    a(href="#")
+                        | &hellip;
+                - var p = currentPage - adjacents;
+                while p <= currentPage + adjacents
+                    if currentPage == p
+                        li.active
+                            a(href=base + p)
+                                | #{p}
+                    else
+                        li.page
+                            a(href=base + p)
+                                | #{p}
+                    - p++;
+                li.disabled
+                    a(href="#")
+                        | &hellip;
+                li.page
+                    a(href=base + (numPages - 1))
+                        | #{numPages - 1}
+                li.page
+                    a(href=base + numPages)
+                        | #{numPages}
+            else
+                li.page
+                    a(href=base + 1)
+                        | 1
+                li.page
+                    a(href=base + 2)
+                        | 2
+                li.disabled
+                    a(href="#")
+                        | &hellip;
+                - var p = numPages - (1 + (adjacents * 3));
+                while p <= numPages
+                    if currentPage == p
+                        li.active
+                            a(href=base + p)
+                                | #{p}
+                    else
+                        li.page
+                            a(href=base + p)
+                                | #{p}
+                    - p++;

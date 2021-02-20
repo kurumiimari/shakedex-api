@@ -1,0 +1,39 @@
+extends ../layout.pug
+
+
+block content
+    include ../mixins/pagination.pug
+
+    .container-fluid
+        .row
+            .col
+                .alert.alert-warning
+                    p ⚠️ Heads-up! This is alpha software. There may be bugs, and you may lose funds.
+                    p.mb-0 Shakedex will never ask for your private key or seed phrase.
+        .row
+            .col
+                h1 Auctions
+                table.table.table-striped
+                    thead
+                        tr
+                            th Name
+                            th Started At
+                            th Starting Bid
+                            th Ending Bid
+                            th Current Bid
+                            th &nbsp;
+                    tbody
+                      each auction in auctions
+                          tr
+                              td= auction.name
+                              td= viewHelpers.formatDate(auction.bids[0].lockTime)
+                              td= viewHelpers.roundCurrency(auction.bids[0].price)
+                              td= viewHelpers.roundCurrency(auction.bids[auction.bids.length - 1].price)
+                              td= viewHelpers.roundCurrency(viewHelpers.currentBid(auction.bids).price)
+                              td
+                                  a(href=`/auctions/${auction.id}`) View &raquo;
+                      if auctions.length === 0
+                          tr
+                            td(colspan=6) No auctions yet. Create one using the shakdex CLI.
+
+                pagination(3, numPages, 7, currentPage, "/auctions")
