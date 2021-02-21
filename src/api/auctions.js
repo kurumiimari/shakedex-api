@@ -39,9 +39,9 @@ module.exports = {
     res.json(auction);
   },
   'GET /api/v1/auctions': async (req, res) => {
-    const {page, per_page: perPage} = req.query;
+    const {page, per_page: perPage, search} = req.query;
     const auctionService = await container.resolve('AuctionService');
-    const {auctions, total} = await auctionService.getAuctions(page, perPage);
+    const {auctions, total} = await auctionService.getAuctions(page, perPage, search);
     res.status(200);
     res.json({
       auctions,

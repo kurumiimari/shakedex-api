@@ -106,7 +106,7 @@ class AuctionService {
     return this.auctionsDb.saveAuction(auction, signature);
   }
 
-  async getAuctions(page = 1, perPage = 25) {
+  async getAuctions(page = 1, perPage = 25, search=null) {
     page = Number(page);
     perPage = Number(perPage);
     if (isNaN(page)) {
@@ -118,7 +118,7 @@ class AuctionService {
 
     page = Math.max(1, page);
     perPage = Math.min(Math.max(0, perPage), 25);
-    return this.auctionsDb.getAuctions(page, perPage);
+    return this.auctionsDb.getAuctions(page, perPage, search);
   }
 
   async getAuction(auctionId) {

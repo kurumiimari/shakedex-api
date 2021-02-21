@@ -7,19 +7,44 @@ class AuctionsDB {
     this.db = db;
   }
 
-  async getAuctions(page, perPage) {
-    const auctionsRes = await this.db.query(`
-      SELECT 
-        a.id,
-        a.name, 
-        a.public_key, 
-        a.payment_addr, 
-        a.locking_tx_hash, 
-        a.locking_output_idx, 
-        a.created_at,
-        a.updated_at
-      FROM auctions a ORDER BY a.created_at DESC LIMIT $1 OFFSET $2
-    `, [
+  async getAuctions(page, perPage, search = null) {
+    let query;
+
+    if (search) {
+      query = `
+        SELECT 
+          a.id,
+          a.name, 
+          a.public_key, 
+          a.payment_addr, 
+          a.locking_tx_hash, 
+          a.locking_output_idx, 
+          a.created_at,
+          a.updated_at
+        FROM auctions a
+        WHERE name ILIKE $3
+        ORDER BY a.created_at DESC LIMIT $1 OFFSET $2
+      `;
+    } else {
+      query = `
+        SELECT 
+          a.id,
+          a.name, 
+          a.public_key, 
+          a.payment_addr, 
+          a.locking_tx_hash, 
+          a.locking_output_idx, 
+          a.created_at,
+          a.updated_at
+        FROM auctions a ORDER BY a.created_at DESC LIMIT $1 OFFSET $2
+      `;
+    }
+
+    const auctionsRes = await this.db.query(query, search ? [
+      perPage,
+      (page - 1) * perPage,
+      `%${search}%`,
+    ] : [
       perPage,
       (page - 1) * perPage,
     ]);
