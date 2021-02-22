@@ -163,6 +163,66 @@ class AuctionsDB {
     return this.inflateJoinedAuctionRow(auctionRes.rows);
   }
 
+  async getAuctionIdByOutpoint(txHash, idx) {
+    const auctionRes = await this.db.query(`
+      SELECT 
+        a.id
+      FROM auctions a
+      WHERE a.locking_tx_hash = $1 AND a.locking_output_idx = $2
+    `, [txHash, idx]);
+
+    if (!auctionRes.rows.length) {
+      throw new NotFoundError('Auction not found.');
+    }
+
+    return auctionRes.rows[0].id;
+  }
+
+  async getBidByAuctionIdPrice(auctionId, price) {
+    const bidRes = await this.db.query(`
+      SELECT 
+        a.id as auction_id,
+        b.id as bid_id,
+        b.price,
+        b.signature,
+        b.lock_time
+      FROM auctions a
+      JOIN bids b
+      ON a.id = b.auction_id
+      WHERE a.id = $1 AND b.price = $2
+    `, [auctionId, price]);
+
+    if (!bidRes.rows.length) {
+      throw new NotFoundError('Bid not found.');
+    }
+
+    const first = bidRes.rows[0];
+    return {
+      auctionId: first.auction_id,
+      bidId: first.bid_id,
+      price: first.price,
+      signature: first.signature,
+      lockTime: first.lockTime,
+    };
+  }
+
+  async indexBlock(height, auctions) {
+    return this.db.withTx(async (client) => {
+      for (const auction of auctions) {
+        await this.db.query(`
+          UPDATE
+            auctions
+          SET spending_tx_hash=$2, spending_status=$3
+          WHERE id = $1
+        `, [auction.id, auction.txHash, auction.status]);
+      }
+
+      await this.db.query(`
+        UPDATE chain_index_state SET indexed_height = $1, indexed_at = NOW()
+      `, [height]);
+    });
+  }
+
   inflateJoinedAuctionRow(rows) {
     const row = rows[0];
     return {

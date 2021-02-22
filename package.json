@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js",
+    "start:server": "node src/app.js",
+    "start:indexer": "node src/indexer.js",
     "migrate": "db-migrate up"
   },
   "author": "Kurumi Imari",
