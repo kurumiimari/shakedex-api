@@ -13,10 +13,13 @@ class Indexer {
   }
 
   async indexChain() {
-    const {nodeClient} = this.sdContext;
+    const {nodeClient, networkName} = this.sdContext;
     const info = await nodeClient.getInfo();
     const chainHeight = info.chain.height;
-    const indexedHeight = await this.chainDb.getIndexedHeight();
+    let indexedHeight = await this.chainDb.getIndexedHeight();
+    if (networkName === 'main' && indexedHeight < 56000) {
+      indexedHeight = 56000;
+    }
 
     for (let i = indexedHeight + 1; i < chainHeight - CONFIRMATION_DEPTH; i++) {
       await this.indexBlock(i);
