@@ -163,6 +163,33 @@ class AuctionsDB {
     return this.inflateJoinedAuctionRow(auctionRes.rows);
   }
 
+  async getAuctionByName(tld) {
+    const auctionRes = await this.db.query(`
+      SELECT 
+        a.id,
+        a.name, 
+        a.public_key, 
+        a.payment_addr, 
+        a.locking_tx_hash, 
+        a.locking_output_idx, 
+        a.created_at,
+        a.updated_at,
+        b.price,
+        b.signature,
+        b.lock_time
+      FROM auctions a
+      JOIN bids b
+      ON a.id = b.auction_id
+      WHERE a.name = $1
+  `, [tld]);
+
+    if (!auctionRes.rows.length) {
+      throw new NotFoundError(`Auction ${tld} not found.`);
+    }
+
+    return this.inflateJoinedAuctionRow(auctionRes.rows);
+  }
+
   async getAuctionIdByOutpoint(txHash, idx) {
     const auctionRes = await this.db.query(`
       SELECT 

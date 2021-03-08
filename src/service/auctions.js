@@ -81,7 +81,6 @@ class AuctionService {
     if (exists) {
       throw new ValidationError('Auction already exists.');
     }
-
     const proofs = auction.data.map(a => new SwapProof({
       name: auction.name,
       lockingTxHash: auction.lockingTxHash,
@@ -128,6 +127,14 @@ class AuctionService {
     }
 
     return this.auctionsDb.getAuction(auctionId);
+  }
+
+  async getAuctionByName(name) {
+    if (typeof name !== 'string') {
+      throw new ValidationError('Name must be a string.');
+    }
+
+    return this.auctionsDb.getAuctionByName(name);
   }
 }
 

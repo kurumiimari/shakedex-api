@@ -56,6 +56,14 @@ module.exports = {
       auction,
     });
   },
+  'GET /api/v1/auctions/n/:name': async (req, res) => {
+    const auctionService = await container.resolve('AuctionService');
+    const auction = await auctionService.getAuctionByName(req.params.name);
+    res.status(200);
+    res.json({
+      auction,
+    });
+  },
   'GET /api/v1/auctions/:auction_id/download': async (req, res) => {
     const auctionService = await container.resolve('AuctionService');
     const auction = await auctionService.getAuction(req.params.auction_id);
