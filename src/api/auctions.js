@@ -35,7 +35,7 @@ module.exports = {
     const auction = await auctionService.createAuction(
       req.body.auction,
     );
-    res.status(201);
+    res.status(200);
     res.json(auction);
   },
   'GET /api/v1/auctions': async (req, res) => {
