@@ -19,6 +19,8 @@ class AuctionsDB {
           a.payment_addr, 
           a.locking_tx_hash, 
           a.locking_output_idx, 
+          a.spending_tx_hash,
+          a.spending_status,
           a.created_at,
           a.updated_at
         FROM auctions a
@@ -33,7 +35,9 @@ class AuctionsDB {
           a.public_key, 
           a.payment_addr, 
           a.locking_tx_hash, 
-          a.locking_output_idx, 
+          a.locking_output_idx,  
+          a.spending_tx_hash,
+          a.spending_status,
           a.created_at,
           a.updated_at
         FROM auctions a ORDER BY a.created_at DESC LIMIT $1 OFFSET $2
@@ -145,6 +149,8 @@ class AuctionsDB {
         a.payment_addr, 
         a.locking_tx_hash, 
         a.locking_output_idx, 
+        a.spending_tx_hash,
+        a.spending_status, 
         a.created_at,
         a.updated_at,
         b.price,
@@ -172,6 +178,8 @@ class AuctionsDB {
         a.payment_addr, 
         a.locking_tx_hash, 
         a.locking_output_idx, 
+        a.spending_tx_hash,
+        a.spending_status,
         a.created_at,
         a.updated_at,
         b.price,
