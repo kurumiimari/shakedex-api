@@ -19,7 +19,7 @@ const corsOptions = {
 async function main() {
   const express = require('express');
   const app = express();
-  app.use(cors(corsOptions));
+  app.use(cors());
   app.use(express.json());
   app.set('view engine', 'pug');
   app.set('views', viewsDir);
