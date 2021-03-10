@@ -2,7 +2,7 @@ const logger = require('../logger.js');
 const {container} = require('../container.js');
 const {NotFoundError} = require('./errors.js');
 
-const CONFIRMATION_DEPTH = 4;
+const CONFIRMATION_DEPTH = 1;
 
 class Indexer {
   constructor(chainDb, auctionsDb, sdContext) {

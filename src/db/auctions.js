@@ -259,6 +259,8 @@ class AuctionsDB {
       paymentAddr: row.payment_addr,
       lockingTxHash: row.locking_tx_hash,
       lockingOutputIdx: row.locking_output_idx,
+      spendingTxHash: row.spending_tx_hash,
+      spendingStatus: row.spending_status,
       createdAt: row.created_at.getTime(),
       updatedAt: row.updated_at.getTime(),
       bids: rows.map(r => ({
@@ -277,6 +279,8 @@ class AuctionsDB {
       paymentAddr: auction.payment_addr,
       lockingTxHash: auction.locking_tx_hash,
       lockingOutputIdx: auction.locking_output_idx,
+      spendingTxHash: auction.spending_tx_hash,
+      spendingStatus: auction.spending_status,
       createdAt: auction.created_at.getTime(),
       updatedAt: auction.updated_at.getTime(),
       bids: bids.map(b => ({
