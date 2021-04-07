@@ -1,10 +1,10 @@
 const logger = require('../logger.js');
-const {NotFoundError, ValidationError} = require('../service/errors.js');
 
 class APIRoot {
   constructor() {
     this.routes = {
       ...require('./auctions.js'),
+      ...require('./feeInfo.js'),
     };
     this.logger = logger.child({
       service: 'API',
