@@ -46,7 +46,7 @@ class Indexer {
         }
 
         try {
-          auctionId = await this.auctionsDb.getAuctionIdByOutpoint(vin.txid, i);
+          auctionId = await this.auctionsDb.getAuctionIdByOutpoint(vin.txid, vin.vout);
         } catch (e) {
           if (e instanceof NotFoundError) {
             continue;
