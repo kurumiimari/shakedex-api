@@ -81,7 +81,7 @@ class AuctionsDB {
     }
 
     const totalRes = await this.db.query(`SELECT count(*) AS count FROM auctions`);
-    const total = totalRes.rows[0].count;
+    const total = Number(totalRes.rows[0].count);
 
     return {
       auctions: auctionsRes.rows.map(a => this.inflateAuctionRow(a, bidsIdx[a.id])),

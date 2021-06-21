@@ -116,7 +116,7 @@ class AuctionService {
     }
 
     page = Math.max(1, page);
-    perPage = Math.min(Math.max(0, perPage), 25);
+    perPage = Math.min(Math.max(0, perPage), 50);
     return this.auctionsDb.getAuctions(page, perPage, search);
   }
 
