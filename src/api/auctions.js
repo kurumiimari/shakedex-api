@@ -77,7 +77,7 @@ module.exports = {
       publicKey: auction.publicKey,
       paymentAddr: auction.paymentAddr,
       price: Number(a.price),
-      lockTime: a.lockTime,
+      lockTime: Math.floor(a.lockTime / 1000),
       signature: a.signature,
     }));
     await writeProofStream(res, proofs, await container.resolve('SDContext'));
