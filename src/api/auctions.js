@@ -68,7 +68,7 @@ module.exports = {
     const auctionService = await container.resolve('AuctionService');
     const auction = await auctionService.getAuction(req.params.auction_id);
     res.status(200);
-    res.append('Content-Disposition', `attachment; filename=auciton-${auction.name}-${auction.id}.txt`);
+    res.append('Content-Disposition', `attachment; filename=auction-${auction.name}-${auction.id}.txt`);
     res.append('Content-Type', 'text/plain');
     const proofs = auction.bids.map(a => new SwapProof({
       name: auction.name,
