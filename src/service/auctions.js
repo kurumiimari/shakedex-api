@@ -72,6 +72,10 @@ class AuctionService {
   }
 
   async validateAuction(auction) {
+    if (!auction) {
+      throw new ValidationError('Must specify an auction key.');
+    }
+
     const res = jsonSchemaValidate(auction, auctionSchema);
     if (!res.valid) {
       throw new ValidationError('Invalid auction schema.');
