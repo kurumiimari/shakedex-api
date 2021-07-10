@@ -1,58 +1,94 @@
 const {container} = require('../container.js');
 const {NotFoundError} = require('../service/errors.js');
 const {paramOrdinals} = require('./utils.js');
+const format = require('pg-format');
+
+const getAuctionsQueryBase = `
+SELECT 
+  a.id,
+  a.name, 
+  a.public_key, 
+  a.payment_addr, 
+  a.locking_tx_hash, 
+  a.locking_output_idx, 
+  a.spending_tx_hash,
+  a.spending_status,
+  a.created_at,
+  a.updated_at
+FROM auctions a
+`
 
 class AuctionsDB {
   constructor(db) {
     this.db = db;
   }
 
-  async getAuctions(page, perPage, search = null) {
-    let query;
+  async getAuctions(page, perPage, search = null, filters = null) {
+    let whereClauses = [];
+    const queryParams = [];
 
     if (search) {
-      query = `
-        SELECT 
-          a.id,
-          a.name, 
-          a.public_key, 
-          a.payment_addr, 
-          a.locking_tx_hash, 
-          a.locking_output_idx, 
-          a.spending_tx_hash,
-          a.spending_status,
-          a.created_at,
-          a.updated_at
-        FROM auctions a
-        WHERE name ILIKE $3
-        ORDER BY a.created_at DESC LIMIT $1 OFFSET $2
-      `;
-    } else {
-      query = `
-        SELECT 
-          a.id,
-          a.name, 
-          a.public_key, 
-          a.payment_addr, 
-          a.locking_tx_hash, 
-          a.locking_output_idx,  
-          a.spending_tx_hash,
-          a.spending_status,
-          a.created_at,
-          a.updated_at
-        FROM auctions a ORDER BY a.created_at DESC LIMIT $1 OFFSET $2
-      `;
+      whereClauses.push('name ILIKE %L');
+      queryParams.push(`%${search}%`);
     }
 
-    const auctionsRes = await this.db.query(query, search ? [
-      perPage,
-      (page - 1) * perPage,
-      `%${search}%`,
-    ] : [
-      perPage,
-      (page - 1) * perPage,
-    ]);
+    if (filters) {
+      if (!filters.includePunycode) {
+        whereClauses.push('name NOT ILIKE \'xn--%%\'')
+      }
+      if (!filters.includeAscii) {
+        whereClauses.push('name ILIKE \'xn--%%\'')
+      }
+      if (filters.minLength) {
+        whereClauses.push('LENGTH(name) >= %L')
+        queryParams.push(filters.minLength);
+      }
+      if (filters.maxLength) {
+        whereClauses.push('LENGTH(name) <= %L')
+        queryParams.push(filters.maxLength);
+      }
+      if (filters.statuses && filters.statuses.length) {
+        let hasActive = false;
+        const strStatuses = filters.statuses.filter(s => {
+          const isActive = s === 'ACTIVE';
+          if (isActive) {
+            hasActive = true;
+          }
+          return !isActive;
+        });
+        if (strStatuses.length && hasActive) {
+          whereClauses.push('(spending_status IN (%L) OR spending_status IS NULL)')
+          queryParams.push(filters.statuses);
+        } else if (strStatuses.length) {
+          whereClauses.push('spending_status IN (%L)')
+          queryParams.push(filters.statuses);
+        } else if (hasActive) {
+          whereClauses.push('spending_status IS NULL');
+        }
+      }
+      if (filters.before) {
+        whereClauses.push('created_at <= to_timestamp(%L)');
+        queryParams.push(filters.before / 1000);
+      }
+      if (filters.after) {
+        whereClauses.push('created_at >= to_timestamp(%L)');
+        queryParams.push(filters.after / 1000);
+      }
+    }
 
+    let resQuery = getAuctionsQueryBase;
+    let countQuery = 'SELECT COUNT(*) FROM auctions a';
+    if (whereClauses.length) {
+      resQuery += ' WHERE ' + whereClauses.join(' AND ');
+      countQuery += ' WHERE ' + whereClauses.join(' AND ');
+    }
+    resQuery += ' ORDER BY a.created_at DESC LIMIT %L OFFSET %L';
+    countQuery = format.withArray(countQuery, queryParams);
+    queryParams.push(perPage);
+    queryParams.push((page - 1) * perPage);
+    resQuery = format.withArray(resQuery, queryParams);
+
+    const auctionsRes = await this.db.query(resQuery);
     if (!auctionsRes.rows.length) {
       return {
         auctions: [],
@@ -80,7 +116,7 @@ class AuctionsDB {
       bidsIdx[bid.auction_id].push(bid);
     }
 
-    const totalRes = await this.db.query(`SELECT count(*) AS count FROM auctions`);
+    const totalRes = await this.db.query(countQuery);
     const total = Number(totalRes.rows[0].count);
 
     return {

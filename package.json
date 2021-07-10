@@ -20,6 +20,7 @@
     "hs-client": "0.0.9",
     "jsonschema": "1.4.0",
     "pg": "^8.5.1",
+    "pg-format": "1.0.4",
     "pug": "^3.0.0",
     "shakedex": "0.0.4",
     "winston": "3.3.3"

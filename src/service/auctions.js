@@ -65,6 +65,37 @@ const auctionSchema = {
   },
 };
 
+const filtersSchema = {
+  type: 'object',
+  properties: {
+    includePunycode: {
+      type: 'boolean',
+    },
+    includeAscii: {
+      type: 'boolean',
+    },
+    minLength: {
+      type: 'number',
+    },
+    maxLength: {
+      type: 'number',
+    },
+    statuses: {
+      type: 'array',
+      items: {
+        type: 'string',
+        enum: ['COMPLETED', 'CANCELLED', 'ACTIVE'],
+      },
+    },
+    before: {
+      type: 'number',
+    },
+    after: {
+      type: 'number',
+    },
+  },
+};
+
 class AuctionService {
   constructor(auctionsDb, sdContext) {
     this.auctionsDb = auctionsDb;
@@ -109,7 +140,7 @@ class AuctionService {
     return this.auctionsDb.saveAuction(auction, signature);
   }
 
-  async getAuctions(page = 1, perPage = 25, search=null) {
+  async getAuctions(page = 1, perPage = 25, search = null, filters = null) {
     page = Number(page);
     perPage = Number(perPage);
     if (isNaN(page)) {
@@ -119,9 +150,13 @@ class AuctionService {
       throw new ValidationError('Per page must be a number.');
     }
 
+    if (filters) {
+      this.validateFilters(filters);
+    }
+
     page = Math.max(1, page);
     perPage = Math.min(Math.max(0, perPage), 50);
-    return this.auctionsDb.getAuctions(page, perPage, search);
+    return this.auctionsDb.getAuctions(page, perPage, search, filters);
   }
 
   async getAuction(auctionId) {
@@ -139,6 +174,21 @@ class AuctionService {
     }
 
     return this.auctionsDb.getAuctionByName(name);
+  }
+
+  validateFilters(filters) {
+    const res = jsonSchemaValidate(filters, filtersSchema);
+    if (!res.valid) {
+      throw new ValidationError('Invalid filters.');
+    }
+
+    if (filters.minLength && filters.maxLength && filters.minLength > filters.maxLength) {
+      throw new ValidationError('Cannot specify a min length that is larger then the max length.');
+    }
+
+    if (filters.before && filters.after && filters.before > filters.after) {
+      throw new ValidationError('Cannot specify a before date that comes after the after date.');
+    }
   }
 }
 

@@ -40,8 +40,16 @@ module.exports = {
   },
   'GET /api/v1/auctions': async (req, res) => {
     const {page, per_page: perPage, search} = req.query;
+    let filters = req.query.filters;
+    if (filters) {
+      try {
+        filters = JSON.parse(filters);
+      } catch (e) {
+        throw new ValidationError('Filters must be a URL-encoded JSON.');
+      }
+    }
     const auctionService = await container.resolve('AuctionService');
-    const {auctions, total} = await auctionService.getAuctions(page, perPage, search);
+    const {auctions, total} = await auctionService.getAuctions(page, perPage, search, filters);
     res.status(200);
     res.json({
       auctions,
