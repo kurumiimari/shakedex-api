@@ -5,6 +5,7 @@ const format = require('pg-format');
 
 const getAuctionsQueryBase = `
 SELECT 
+  DISTINCT ON (a.id)
   a.id,
   a.name, 
   a.public_key, 
@@ -14,8 +15,10 @@ SELECT
   a.spending_tx_hash,
   a.spending_status,
   a.created_at,
-  a.updated_at
+  a.updated_at,
+  bids.price
 FROM auctions a
+JOIN bids ON bids.auction_id = a.id AND bids.lock_time <= NOW()
 `
 
 class AuctionsDB {
@@ -74,16 +77,26 @@ class AuctionsDB {
         whereClauses.push('created_at >= to_timestamp(%L)');
         queryParams.push(filters.after / 1000);
       }
+      if (Number.isInteger(filters.minCurrentBid)) {
+        whereClauses.push('bids.price >= %L')
+        queryParams.push(filters.minCurrentBid);
+      }
+      if (Number.isInteger(filters.maxCurrentBid)) {
+        whereClauses.push('bids.price <= %L')
+        queryParams.push(filters.maxCurrentBid);
+      }
     }
 
     let resQuery = getAuctionsQueryBase;
-    let countQuery = 'SELECT COUNT(*) FROM auctions a';
     if (whereClauses.length) {
       resQuery += ' WHERE ' + whereClauses.join(' AND ');
-      countQuery += ' WHERE ' + whereClauses.join(' AND ');
     }
-    resQuery += ' ORDER BY a.created_at DESC LIMIT %L OFFSET %L';
-    countQuery = format.withArray(countQuery, queryParams);
+    resQuery += ' ORDER BY a.id DESC, bids.id DESC';
+    const countQuery = format(
+      'SELECT COUNT(*) FROM (%s) as auctions',
+      format.withArray(resQuery, queryParams)
+    );
+    resQuery += '  LIMIT %L OFFSET %L';
     queryParams.push(perPage);
     queryParams.push((page - 1) * perPage);
     resQuery = format.withArray(resQuery, queryParams);

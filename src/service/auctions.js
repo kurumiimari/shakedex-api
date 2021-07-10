@@ -80,6 +80,12 @@ const filtersSchema = {
     maxLength: {
       type: 'number',
     },
+    minCurrentBid: {
+      type: 'number'
+    },
+    maxCurrentBid: {
+      type: 'number'
+    },
     statuses: {
       type: 'array',
       items: {
@@ -184,6 +190,11 @@ class AuctionService {
 
     if (filters.minLength && filters.maxLength && filters.minLength > filters.maxLength) {
       throw new ValidationError('Cannot specify a min length that is larger then the max length.');
+    }
+
+    if (Number.isInteger(filters.minCurrentBid) && Number.isInteger(filters.maxCurrentBid) &&
+      filters.minCurrentBid > filters.maxCurrentBid) {
+      throw new ValidationError('Min current bid cannot exceed max current bid.');
     }
 
     if (filters.before && filters.after && filters.before > filters.after) {
