@@ -7,17 +7,17 @@ class StatsDB {
 
   async getStats() {
     const totalAuctionsRes = await this.db.query('SELECT COUNT(*) AS count FROM auctions');
-    const totalAuctions = totalAuctionsRes.rows[0].count;
+    const totalAuctions = Number(totalAuctionsRes.rows[0].count);
     const totalCancellationsRes = await this.db.query(
       'SELECT COUNT(*) AS count FROM auctions WHERE spending_status = $1',
       ['CANCELLED'],
     );
-    const totalCancellations = totalCancellationsRes.rows[0].count;
+    const totalCancellations = Number(totalCancellationsRes.rows[0].count);
     const totalCompletesRes = await this.db.query(
       'SELECT COUNT(*) AS count FROM auctions WHERE spending_status = $1',
       ['COMPLETED'],
     );
-    const totalCompletes = totalCompletesRes.rows[0].count;
+    const totalCompletes = Number(totalCompletesRes.rows[0].count);
 
     const auctionCountByDayRes = await this.db.query(
       `SELECT count(*) AS count, date_trunc('day', created_at) AS day
