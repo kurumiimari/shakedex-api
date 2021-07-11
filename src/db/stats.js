@@ -30,7 +30,7 @@ class StatsDB {
     const monthlyVolumeRes = await this.db.query(
       `SELECT sum(bids.price) AS value, date_trunc('month', created_at) AS month
        FROM auctions
-                JOIN bids ON auctions.id = bids.auction_id
+                JOIN bids ON auctions.completed_bid_id = bids.id
        WHERE created_at >= NOW() - '1 year'::INTERVAL
        GROUP BY date_trunc('month', created_at)
        ORDER BY month`,
