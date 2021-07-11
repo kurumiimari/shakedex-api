@@ -46,7 +46,7 @@ class StatsDB {
       })),
       monthlyVolume: monthlyVolumeRes.rows.map(r => ({
         month: r.month.getMonth(),
-        count: Number(r.value),
+        volume: Number(r.value),
       })),
     };
   }
