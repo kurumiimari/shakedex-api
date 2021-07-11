@@ -296,9 +296,9 @@ class AuctionsDB {
         await this.db.query(`
           UPDATE
             auctions
-          SET spending_tx_hash=$2, spending_status=$3
+          SET spending_tx_hash=$2, spending_status=$3, completed_bid_id = $4
           WHERE id = $1
-        `, [auction.id, auction.txHash, auction.status]);
+        `, [auction.id, auction.txHash, auction.status, auction.bidId]);
       }
 
       await this.db.query(`

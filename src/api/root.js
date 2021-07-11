@@ -5,6 +5,7 @@ class APIRoot {
     this.routes = {
       ...require('./auctions.js'),
       ...require('./feeInfo.js'),
+      ...require('./stats.js')
     };
     this.logger = logger.child({
       service: 'API',

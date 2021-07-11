@@ -62,10 +62,10 @@ class Indexer {
       }
 
       let status = 'CANCELLED';
+      let bid;
       for (const vout of tx.vout) {
-
         try {
-          await this.auctionsDb.getBidByAuctionIdPrice(auctionId, vout.value * 1e6);
+          bid = await this.auctionsDb.getBidByAuctionIdPrice(auctionId, vout.value * 1e6);
         } catch (e) {
           if (e instanceof NotFoundError) {
             continue;
@@ -79,6 +79,7 @@ class Indexer {
 
       toStore.push({
         id: auctionId,
+        bidId: bid ? bid.bidId : null,
         txHash: tx.txid,
         status,
       });

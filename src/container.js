@@ -57,5 +57,6 @@ require('./sdContext.js');
 require('./db/database.js');
 require('./db/auctions.js');
 require('./db/chain.js');
+require('./db/stats.js');
 require('./service/auctions.js');
 require('./service/indexer.js');
