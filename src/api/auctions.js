@@ -75,20 +75,29 @@ module.exports = {
   'GET /api/v1/auctions/:auction_id/download': async (req, res) => {
     const auctionService = await container.resolve('AuctionService');
     const auction = await auctionService.getAuction(req.params.auction_id);
-    res.status(200);
-    res.append('Content-Disposition', `attachment; filename=auction-${auction.name}-${auction.id}.txt`);
-    res.append('Content-Type', 'text/plain');
-    const proofs = auction.bids.map(a => new SwapProof({
-      name: auction.name,
-      lockingTxHash: auction.lockingTxHash,
-      lockingOutputIdx: auction.lockingOutputIdx,
-      publicKey: auction.publicKey,
-      paymentAddr: auction.paymentAddr,
-      price: Number(a.price),
-      lockTime: Math.floor(a.lockTime / 1000),
-      signature: a.signature,
-    }));
-    await writeProofStream(res, proofs, await container.resolve('SDContext'));
-    res.end();
+    await streamAuctionRes(auction, res);
+  },
+  'GET /api/v1/auctions/n/:name/download': async (req, res) => {
+    const auctionService = await container.resolve('AuctionService');
+    const auction = await auctionService.getAuctionByName(req.params.auction_id);
+    await streamAuctionRes(auction, res)
   },
 };
+
+async function streamAuctionRes(auction, res) {
+  res.status(200);
+  res.append('Content-Disposition', `attachment; filename=auction-${auction.name}-${auction.id}.txt`);
+  res.append('Content-Type', 'text/plain');
+  const proofs = auction.bids.map(a => new SwapProof({
+    name: auction.name,
+    lockingTxHash: auction.lockingTxHash,
+    lockingOutputIdx: auction.lockingOutputIdx,
+    publicKey: auction.publicKey,
+    paymentAddr: auction.paymentAddr,
+    price: Number(a.price),
+    lockTime: Math.floor(a.lockTime / 1000),
+    signature: a.signature,
+  }));
+  await writeProofStream(res, proofs, await container.resolve('SDContext'));
+  res.end();
+}

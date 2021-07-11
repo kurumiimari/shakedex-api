@@ -238,6 +238,7 @@ class AuctionsDB {
       JOIN bids b
       ON a.id = b.auction_id
       WHERE a.name = $1
+      ORDER BY a.id DESC
   `, [tld]);
 
     if (!auctionRes.rows.length) {
