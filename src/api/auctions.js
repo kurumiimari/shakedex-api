@@ -79,7 +79,7 @@ module.exports = {
   },
   'GET /api/v1/auctions/n/:name/download': async (req, res) => {
     const auctionService = await container.resolve('AuctionService');
-    const auction = await auctionService.getAuctionByName(req.params.auction_id);
+    const auction = await auctionService.getAuctionByName(req.params.name);
     await streamAuctionRes(auction, res)
   },
 };
