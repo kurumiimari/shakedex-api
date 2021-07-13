@@ -5,6 +5,7 @@ const {container} = require('../container.js');
 
 const {addressRegex} = require('./validation.js');
 const {hexRegex} = require('./validation.js');
+const {AUCTION_SORT_FIELDS} = require('../db/auctions.js');
 
 const auctionSchema = {
   type: 'object',
@@ -81,10 +82,10 @@ const filtersSchema = {
       type: 'number',
     },
     minCurrentBid: {
-      type: 'number'
+      type: 'number',
     },
     maxCurrentBid: {
-      type: 'number'
+      type: 'number',
     },
     statuses: {
       type: 'array',
@@ -146,7 +147,7 @@ class AuctionService {
     return this.auctionsDb.saveAuction(auction, signature);
   }
 
-  async getAuctions(page = 1, perPage = 25, search = null, filters = null) {
+  async getAuctions(page = 1, perPage = 25, search = null, filters = null, sortField = null, sortDirection = 1) {
     page = Number(page);
     perPage = Number(perPage);
     if (isNaN(page)) {
@@ -159,10 +160,17 @@ class AuctionService {
     if (filters) {
       this.validateFilters(filters);
     }
+    if (sortField && !AUCTION_SORT_FIELDS[sortField]) {
+      throw new ValidationError('Invalid sort field.');
+    }
+    sortDirection = Number(sortDirection);
+    if (sortDirection && sortDirection !== -1 && sortDirection !== 1) {
+      throw new ValidationError('Invalid sort direction.');
+    }
 
     page = Math.max(1, page);
     perPage = Math.min(Math.max(0, perPage), 50);
-    return this.auctionsDb.getAuctions(page, perPage, search, filters);
+    return this.auctionsDb.getAuctions(page, perPage, search, filters, sortField, sortDirection);
   }
 
   async getAuction(auctionId) {

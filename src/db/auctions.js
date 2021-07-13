@@ -21,14 +21,25 @@ FROM auctions a
 JOIN bids ON bids.auction_id = a.id AND bids.lock_time <= NOW()
 `
 
+const AUCTION_SORT_FIELDS = {
+  'createdAt': 'created_at',
+  'currentBid': 'price',
+  'name': 'name',
+  'status': 'status'
+};
+
 class AuctionsDB {
   constructor(db) {
     this.db = db;
   }
 
-  async getAuctions(page, perPage, search = null, filters = null) {
+  async getAuctions(page, perPage, search = null, filters = null, sortField=null, sortDirection = 1) {
     let whereClauses = [];
     const queryParams = [];
+
+    if (sortField && !AUCTION_SORT_FIELDS[sortField]) {
+      throw new Error('Invalid sort field.');
+    }
 
     if (search) {
       whereClauses.push('name ILIKE %L');
@@ -96,10 +107,22 @@ class AuctionsDB {
       'SELECT COUNT(*) FROM (%s) as auctions',
       format.withArray(resQuery, queryParams)
     );
-    resQuery += '  LIMIT %L OFFSET %L';
-    queryParams.push(perPage);
-    queryParams.push((page - 1) * perPage);
-    resQuery = format.withArray(resQuery, queryParams);
+
+    if (sortField) {
+      resQuery = format(
+        'SELECT sq.* FROM (%s) AS sq ORDER BY sq.%s %s LIMIT %L OFFSET %L',
+        format.withArray(resQuery, queryParams),
+        AUCTION_SORT_FIELDS[sortField],
+        sortDirection === 1 ? 'ASC' : 'DESC',
+        perPage,
+        (page - 1) * perPage
+      );
+    } else {
+      resQuery += '  LIMIT %L OFFSET %L';
+      queryParams.push(perPage);
+      queryParams.push((page - 1) * perPage);
+      resQuery = format.withArray(resQuery, queryParams);
+    }
 
     const auctionsRes = await this.db.query(resQuery);
     if (!auctionsRes.rows.length) {
@@ -353,3 +376,4 @@ class AuctionsDB {
 container.register('AuctionsDB', (db) => new AuctionsDB(db), ['Database']);
 
 module.exports = AuctionsDB;
+module.exports.AUCTION_SORT_FIELDS = AUCTION_SORT_FIELDS;

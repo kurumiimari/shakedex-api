@@ -39,7 +39,7 @@ module.exports = {
     res.json(auction);
   },
   'GET /api/v1/auctions': async (req, res) => {
-    const {page, per_page: perPage, search} = req.query;
+    const {page, per_page: perPage, search, sort_field: sortField, sort_direction: sortDirection} = req.query;
     let filters = req.query.filters;
     if (filters) {
       try {
@@ -49,7 +49,7 @@ module.exports = {
       }
     }
     const auctionService = await container.resolve('AuctionService');
-    const {auctions, total} = await auctionService.getAuctions(page, perPage, search, filters);
+    const {auctions, total} = await auctionService.getAuctions(page, perPage, search, filters, sortField, sortDirection);
     res.status(200);
     res.json({
       auctions,
