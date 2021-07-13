@@ -25,7 +25,7 @@ const AUCTION_SORT_FIELDS = {
   'createdAt': 'created_at',
   'currentBid': 'price',
   'name': 'name',
-  'status': 'status'
+  'status': 'spending_status'
 };
 
 class AuctionsDB {
