@@ -16,7 +16,7 @@ Currently in use at [https://www.shakedex.com](https://www.shakedex.com).
 
 ### Installation
 
-1. Clone the repo.
+1. Clone the repo. `git clone https://github.com/kurumiimari/shakedex-api.git`.
 2. Run `npm install`.
 3. Run `npm i -g db-migrate` to install the database migration tool.
 4. Run `DATABASE_URL=<your database url> db-migrate up` to run database migrations.
